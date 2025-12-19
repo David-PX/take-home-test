@@ -1,83 +1,217 @@
-# **Take-Home Test: Backend-Focused Full-Stack Developer (.NET C# & Angular)**
+# Loan Management System — Take Home Test
 
-## **Objective**
+This repository contains a simple **Loan Management System** composed of:
 
-This take-home test evaluates your ability to develop and integrate a .NET Core (C#) backend with an Angular frontend, focusing on API design, database integration, and basic DevOps practices.
+- **Backend**: .NET 6 REST API (C#) + Entity Framework Core + SQL Server (Docker)
+- **Frontend**: Angular 19 application consuming the API (run locally)
 
-## **Instructions**
-
-1.  **Fork the provided repository** before starting the implementation.
-2.  Implement the requested features in your forked repository.
-3.  Once you have completed the implementation, **send the link** to your forked repository via email for review.
-
-## **Task**
-
-You will build a simple **Loan Management System** with a **.NET Core backend (C#)** exposing RESTful APIs and a **basic Angular frontend** consuming these APIs.
+> ✅ The backend is dockerized
+> ✅ The frontend is executed locally (not dockerized for this delivery)
 
 ---
 
-## **Requirements**
+## Repository Structure
 
-### **1. Backend (API) - .NET Core**
+```
+backend/
+  src/
+    Fundo.Applications.WebApi/
+    Fundo.Services.Tests/
+    Dockerfile
+    docker-compose.yml
+    .env
+    src.sln
 
-* Create a **RESTful API** in .NET Core to handle **loan applications**.
-* Implement the following endpoints:
-    * `POST /loans` → Create a new loan.
-    * `GET /loans/{id}` → Retrieve loan details.
-    * `GET /loans` → List all loans.
-    * `POST /loans/{id}/payment` → Deduct from `currentBalance`.
-* Loan example (feel free to improve it):
-
-    ```json
-    {
-        "amount": 1500.00, // Amount requested
-        "currentBalance": 500.00, // Remaining balance
-        "applicantName": "Maria Silva", // User name
-        "status": "active" // Status can be active or paid
-    }
-    ```
-
-* Use **Entity Framework Core** with **SQL Server**.
-* Create seed data to populate the loans (the frontend will consume this).
-* Write **unit/integration tests for the API** (xUnit or NUnit).
-* **Dockerize** the backend and create a **Docker Compose** file.
-* Create a README with setup instructions.
-
-### **2. Frontend - Angular (Simplified UI)**  
-
-Develop a **lightweight Angular app** to interact with the backend
-
-#### **Features:**  
-- A **table** to display a list of existing loans.  
-
-#### **Mockup:**  
-[View Mockup](https://kzmgtjqt0vx63yji8h9l.lite.vusercontent.net/)  
-(*The design doesn’t need to be an exact replica of the mockup—it serves as a reference. Aim to keep it as close as possible.*)  
+frontend/
+  (Angular 19 project)
+```
 
 ---
 
-## **Bonus (Optional, Not Required)**
+## Prerequisites
 
-* **Improve error handling and logging** with structured logs.
-* Implement **authentication**.
-* Create a **GitHub Actions** pipeline for building and testing the backend.
+### Backend
 
----
+- Docker Desktop (Mac / Windows / Linux)
+- Docker Compose (included with Docker Desktop)
 
-## **Evaluation Criteria**
+### Frontend
 
-✔ **Code quality** (clean architecture, modularization, best practices).
+- Node.js 20+ (recommended)
+- Angular CLI 19
 
-✔ **Functionality** (the API and frontend should work as expected).
-
-✔ **Security considerations** (authentication, validation, secure API handling).
-
-✔ **Testing coverage** (unit tests for critical backend functions).
-
-✔ **Basic DevOps implementation** (Docker for backend).
+```bash
+npm install -g @angular/cli@19
+```
 
 ---
 
-## **Additional Information**
+## 1) Run Backend (API + SQL Server) with Docker Compose
 
-Candidates are encouraged to include a `README.md` file in their repository detailing their implementation approach, any challenges they faced, features they couldn't complete, and any improvements they would make given more time. Ideally, the implementation should be completed within **two days** of starting the test.
+All backend Docker files are located in:
+
+```
+backend/src
+```
+
+### 1.1 Configure environment variables
+
+Create or update the file:
+
+```
+backend/src/.env
+```
+
+Example:
+
+```env
+SA_PASSWORD=yourStrong(!)Password
+JWT_KEY=CHANGE_ME_TO_A_LONG_RANDOM_SECRET_32+_CHARS
+```
+
+**Notes**
+
+- `SA_PASSWORD` must meet SQL Server password requirements
+- `JWT_KEY` should be a long, random secret
+
+---
+
+### 1.2 Build and start containers
+
+From the backend folder:
+
+```bash
+cd backend/src
+docker compose --env-file .env up --build
+```
+
+This starts:
+
+- **SQL Server** → `localhost:1433`
+- **API** → `http://localhost:5000`
+
+---
+
+### 1.3 Verify backend
+
+- API base URL:
+  `http://localhost:5000`
+
+- Swagger (if enabled):
+  `http://localhost:5000/swagger`
+
+#### Main API endpoints
+
+```
+POST   /auth/register
+POST   /auth/login
+GET    /customers
+POST   /customers
+GET    /loans
+POST   /loans
+GET    /loans/{id}
+POST   /loans/{id}/payment
+```
+
+---
+
+## 2) Run Frontend (Angular 19) Locally
+
+Navigate to the frontend folder:
+
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the application:
+
+```bash
+ng serve
+```
+
+Frontend URL:
+
+```
+http://localhost:4200
+```
+
+---
+
+## 3) Connect Frontend to Backend
+
+The backend runs on:
+
+```
+http://localhost:5000
+```
+
+Make sure your Angular app uses this URL when calling the API.
+
+Typical approaches:
+
+- `environment.ts` / `environment.prod.ts`
+- Central API service configuration
+
+Example:
+
+```ts
+const API_BASE_URL = "http://localhost:5000";
+```
+
+---
+
+## 4) Authentication Flow
+
+The API uses **JWT authentication**. Most endpoints require a valid token.
+
+Recommended flow:
+
+1. Register a user
+   `POST /auth/register`
+
+2. Login
+   `POST /auth/login`
+
+3. Store the returned JWT token (e.g. `localStorage`)
+
+4. Send token on each request:
+
+```
+Authorization: Bearer <token>
+```
+
+---
+
+## 5) Run Backend Tests (Optional)
+
+Tests are located in:
+
+```
+backend/src/Fundo.Services.Tests
+```
+
+Run from `backend/src`:
+
+```bash
+dotnet test
+```
+
+---
+
+## Troubleshooting
+
+### API cannot connect to SQL Server
+
+SQL Server may take time to initialize on first startup.
+
+Suggestions:
+
+- Wait until SQL logs show _“Recovery is complete”_
+- Restart Docker Compose
+- Ensure `SA_PASSWORD` meets SQL Server rules
