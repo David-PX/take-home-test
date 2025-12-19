@@ -107,10 +107,8 @@ namespace Fundo.Applications.WebApi
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext db, ILogger<Startup> logger)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext db)
         {
-            WaitForDatabaseAsync(db, logger).GetAwaiter().GetResult();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -123,7 +121,6 @@ namespace Fundo.Applications.WebApi
                 });
 
                 DbSeeder.SeedAsync(db).GetAwaiter().GetResult();
-
             }
 
             app.UseRouting();
@@ -133,38 +130,6 @@ namespace Fundo.Applications.WebApi
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
-        }
-
-        private static async Task WaitForDatabaseAsync(AppDbContext db, ILogger logger)
-        {
-            const int maxAttempts = 20;
-            var delay = TimeSpan.FromSeconds(5);
-
-            for (var attempt = 1; attempt <= maxAttempts; attempt++)
-            {
-                try
-                {
-                    logger.LogInformation("DB check attempt {Attempt}/{MaxAttempts}", attempt, maxAttempts);
-
-                    // Abre conexión
-                    var canConnect = await db.Database.CanConnectAsync();
-                    if (canConnect)
-                    {
-                        logger.LogInformation("DB is reachable. Applying migrations...");
-                        await db.Database.MigrateAsync();
-                        logger.LogInformation("Migrations applied successfully.");
-                        return;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogWarning(ex, "DB not ready yet (attempt {Attempt}/{MaxAttempts})", attempt, maxAttempts);
-                }
-
-                await Task.Delay(delay);
-            }
-
-            throw new Exception("Database is not reachable after multiple attempts.");
         }
     }
 }
