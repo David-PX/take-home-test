@@ -1,0 +1,30 @@
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: lms-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SA_PASSWORD}"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lms-api
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=LoanManagementDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=true;Encrypt=false;"
+      Jwt__Issuer: "lms"
+      Jwt__Audience: "lms"
+      Jwt__Key: "${JWT_KEY}"
+    ports:
+      - "5004:8080"
+
+volumes:
+  mssql_data:

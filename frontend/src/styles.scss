@@ -1,11 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+@use "./styles/theme.scss";
 
 html,
 body {
   height: 100%;
 }
-
 body {
   margin: 0;
-  font-family: "Roboto", sans-serif;
+  background: var(--app-bg);
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+mat-card {
+  border-radius: var(--card-radius) !important;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.06) !important;
 }

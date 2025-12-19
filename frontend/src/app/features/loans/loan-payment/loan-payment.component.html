@@ -1,0 +1,35 @@
+<main class="page">
+  <mat-card class="card">
+    <div class="title-row">
+      <h2>Make a Payment</h2>
+      <button mat-button routerLink="/loans">Back</button>
+    </div>
+
+    <div class="info" *ngIf="loan">
+      <p><strong>Customer:</strong> {{ loan.customer.fullName }}</p>
+      <p>
+        <strong>Original Amount:</strong> {{ loan.originalAmount | currency }}
+      </p>
+      <p>
+        <strong>Current Balance:</strong> {{ loan.currentBalance | currency }}
+      </p>
+      <p><strong>Status:</strong> {{ loan.status }}</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Amount to pay</mat-label>
+        <input matInput type="number" formControlName="amount" />
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        class="full"
+        [disabled]="form.invalid"
+      >
+        Pay
+      </button>
+    </form>
+  </mat-card>
+</main>

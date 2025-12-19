@@ -1,0 +1,45 @@
+<main class="page">
+  <mat-card class="card">
+    <div class="title-row">
+      <h2>New Loan</h2>
+      <button mat-button routerLink="/loans">Back</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Search customer</mat-label>
+        <input
+          matInput
+          formControlName="customerSearch"
+          placeholder="Type name or email..."
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Customer</mat-label>
+        <mat-select formControlName="customerId">
+          <mat-option
+            *ngFor="let c of filteredCustomers$ | async"
+            [value]="c.id"
+          >
+            {{ c.fullName }} — {{ c.email }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Loan amount</mat-label>
+        <input matInput type="number" formControlName="amount" />
+      </mat-form-field>
+
+      <button
+        mat-raised-button
+        color="primary"
+        class="full"
+        [disabled]="form.invalid"
+      >
+        Create
+      </button>
+    </form>
+  </mat-card>
+</main>
