@@ -11,7 +11,8 @@ namespace Fundo.Applications.WebApi.Application.Mapping
             CreateMap<Customer, CustomerDto>();
 
             CreateMap<CreateCustomerRequestDto, Customer>()
-                .ForMember(d => d.Id, opt => opt.Ignore());
+                .ForMember(d => d.Id, opt => opt.Ignore())
+                .ForMember(d => d.Loans, opt => opt.Ignore());
 
             CreateMap<Loan, LoanListItemDto>()
                 .ForMember(d => d.Status, opt => opt.MapFrom(s => s.Status.ToString().ToLowerInvariant()));

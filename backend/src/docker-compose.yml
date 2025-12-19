@@ -4,7 +4,7 @@ services:
     container_name: lms-db
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "${SA_PASSWORD}"
+      MSSQL_SA_PASSWORD: "P@ssw0rd"
     ports:
       - "1433:1433"
     volumes:
@@ -19,7 +19,7 @@ services:
       - db
     environment:
       ASPNETCORE_ENVIRONMENT: "Development"
-      ConnectionStrings__DefaultConnection: "Server=db,1433;Database=LoanManagementDb;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=true;Encrypt=false;"
+      ConnectionStrings__Default: "Server=db,1433;Database=LoansDb;User Id=sa;Password=P@ssw0rd;TrustServerCertificate=True;"
       Jwt__Issuer: "lms"
       Jwt__Audience: "lms"
       Jwt__Key: "${JWT_KEY}"

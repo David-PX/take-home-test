@@ -33,18 +33,14 @@ namespace Fundo.Applications.WebApi.Application.Services
             var customer = await customers.GetByIdAsync(request.CustomerId, ct);
             if (customer == null) throw new InvalidOperationException("Customer not found.");
 
-            // AutoMapper mapea el request al Loan base (OriginalAmount desde Amount, CustomerId, etc.)
             var loan = mapper.Map<Loan>(request);
 
-            // Reglas de negocio aquí (no en el mapeo)
             loan.CurrentBalance = request.Amount;
             loan.Status = LoanStatus.Active;
 
             await loans.AddAsync(loan, ct);
             await uow.SaveChangesAsync(ct);
 
-            // Nota: loan.Customer no está cargado aquí (no hicimos include),
-            // pero el DTO de detalle requiere Customer. Lo resolvemos con el customer ya cargado:
             loan.Customer = customer;
 
             return mapper.Map<LoanDetailDto>(loan);
